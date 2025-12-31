@@ -1,32 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Layout from '../components/Layout';
 
 import { GoogleSheetService, GOOGLE_SHEET_URLS } from '../services/GoogleSheetService';
 
-const ImageSlider = ({ images, onImageClick, objectFit = 'cover' }) => {
+const ImageSlider = ({ images, objectFit = 'cover' }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [touchStart, setTouchStart] = useState(null);
+    const [touchEnd, setTouchEnd] = useState(null);
 
-    // Auto-slide functionality
-    useEffect(() => {
-        if (!images || images.length === 0) return;
+    // Minimum swipe distance (in px) 
+    const minSwipeDistance = 50;
 
-        const interval = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % images.length);
-        }, 3000);
-        return () => clearInterval(interval);
-    }, [images?.length]); // Safe access
+    const onTouchStart = (e) => {
+        setTouchEnd(null); // Reset
+        setTouchStart(e.targetTouches[0].clientX);
+    };
 
-    if (!images || images.length === 0) {
-        return <div style={{ width: '100%', height: '100%', background: '#111' }} />;
-    }
+    const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
+
+    const onTouchEnd = () => {
+        if (!touchStart || !touchEnd) return;
+
+        const distance = touchStart - touchEnd;
+        const isLeftSwipe = distance > minSwipeDistance;
+        const isRightSwipe = distance < -minSwipeDistance;
+
+        if (isLeftSwipe) {
+            nextSlide();
+        }
+        if (isRightSwipe) {
+            prevSlide();
+        }
+    };
 
     const nextSlide = (e) => {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
         setCurrentIndex((prev) => (prev + 1) % images.length);
     };
 
     const prevSlide = (e) => {
-        e.stopPropagation();
+        if (e) e.stopPropagation();
         setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
     };
 
@@ -35,29 +48,49 @@ const ImageSlider = ({ images, onImageClick, objectFit = 'cover' }) => {
         setCurrentIndex(idx);
     };
 
+    if (!images || images.length === 0) {
+        return <div style={{ width: '100%', height: '100%', background: '#111' }} />;
+    }
+
     return (
-        <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden' }}>
-            {images.map((img, idx) => (
-                <img
-                    key={idx}
-                    src={img.startsWith('http') ? img : `https://images.unsplash.com/${img}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80`}
-                    alt="Project"
-                    style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        height: '100%',
-                        objectFit: objectFit,
-                        opacity: idx === currentIndex ? 1 : 0,
-                        transition: 'opacity 0.4s ease-in-out, transform 0.4s ease',
-                        cursor: onImageClick ? 'pointer' : 'default'
-                    }}
-                    onClick={(e) => {
-                        if (onImageClick) onImageClick();
-                    }}
-                />
-            ))}
+        <div
+            style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', touchAction: 'pan-y' }}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+        >
+            <div
+                style={{
+                    display: 'flex',
+                    width: '100%',
+                    height: '100%',
+                    transform: `translateX(-${currentIndex * 100}%)`,
+                    transition: 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)'
+                }}
+            >
+                {images.map((img, idx) => (
+                    <div
+                        key={idx}
+                        style={{
+                            minWidth: '100%',
+                            height: '100%',
+                            position: 'relative'
+                        }}
+                    >
+                        <img
+                            src={img.startsWith('http') ? img : `https://images.unsplash.com/${img}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80`}
+                            alt="Project"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                objectFit: objectFit,
+                                userSelect: 'none',
+                                pointerEvents: 'none' // Prevent image drag behavior interrupting swipe
+                            }}
+                        />
+                    </div>
+                ))}
+            </div>
 
             {/* Dots */}
             <div style={{
@@ -85,7 +118,7 @@ const ImageSlider = ({ images, onImageClick, objectFit = 'cover' }) => {
                 ))}
             </div>
 
-            {/* Arrows */}
+            {/* Arrows (Visible on all devices for clarity, or just larger screens) */}
             {images.length > 1 && (
                 <>
                     <button
@@ -104,7 +137,8 @@ const ImageSlider = ({ images, onImageClick, objectFit = 'cover' }) => {
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            zIndex: 20
                         }}
                     >
                         ‹
@@ -125,7 +159,8 @@ const ImageSlider = ({ images, onImageClick, objectFit = 'cover' }) => {
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            zIndex: 20
                         }}
                     >
                         ›
@@ -139,7 +174,6 @@ const ImageSlider = ({ images, onImageClick, objectFit = 'cover' }) => {
 export default function PortfolioPage() {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [selectedProject, setSelectedProject] = useState(null);
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -167,57 +201,6 @@ export default function PortfolioPage() {
 
     return (
         <Layout>
-            {selectedProject && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: 'rgba(0,0,0,0.95)',
-                    zIndex: 10000,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    padding: '20px'
-                }}>
-                    <button
-                        onClick={() => setSelectedProject(null)}
-                        style={{
-                            position: 'absolute',
-                            top: '30px',
-                            right: '30px',
-                            background: 'transparent',
-                            border: '1px solid #fff',
-                            color: '#fff',
-                            padding: '10px 20px',
-                            cursor: 'pointer',
-                            borderRadius: '4px',
-                            fontSize: '1rem',
-                            zIndex: 10001
-                        }}
-                    >
-                        Back to List
-                    </button>
-
-                    <div style={{
-                        width: '70vw',
-                        maxWidth: '1200px',
-                        aspectRatio: '16 / 9',
-                        marginBottom: '20px',
-                        boxShadow: '0 0 30px rgba(0,0,0,0.5)'
-                    }}>
-                        <ImageSlider images={selectedProject.images} objectFit="cover" />
-                    </div>
-
-                    <div style={{ color: '#fff', textAlign: 'center', maxWidth: '800px' }}>
-                        <h2 style={{ fontSize: '2rem', marginBottom: '10px' }}>{selectedProject.title}</h2>
-                        <p style={{ fontSize: '1rem', color: '#ccc' }}>{selectedProject.desc}</p>
-                    </div>
-                </div>
-            )}
-
             <div className="container fade-in" style={{ padding: '6rem 0' }}>
                 <h2 style={{
                     textAlign: 'center',
@@ -262,16 +245,8 @@ export default function PortfolioPage() {
                                     borderRadius: '4px',
                                     overflow: 'hidden',
                                     backgroundColor: '#111'
-                                }}
-                                    onMouseOver={(e) => {
-                                        const imgs = e.currentTarget.querySelectorAll('img');
-                                        imgs.forEach(img => img.style.transform = 'scale(1.1)');
-                                    }}
-                                    onMouseOut={(e) => {
-                                        const imgs = e.currentTarget.querySelectorAll('img');
-                                        imgs.forEach(img => img.style.transform = 'scale(1)');
-                                    }}>
-                                    <ImageSlider images={project.images} onImageClick={() => setSelectedProject(project)} />
+                                }}>
+                                    <ImageSlider images={project.images} objectFit="cover" />
                                 </div>
 
                                 {/* Text Info */}
