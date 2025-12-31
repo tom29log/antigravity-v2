@@ -23,7 +23,7 @@ export default function StartPage() {
             <div style={{
                 display: 'flex',
                 justifyContent: 'center',
-                marginBottom: '2rem',
+                marginBottom: '1rem',
                 zIndex: 10
             }}>
                 {/* Interactive Logo */}
@@ -56,16 +56,16 @@ export default function StartPage() {
                 </p>
                 <h1 style={{
                     fontSize: '3.5rem',
-                    marginBottom: '1.5rem',
+                    marginBottom: '1rem',
                     lineHeight: 1.2
                 }}>
                     공간의 가치를<br />디자인하다
                 </h1>
                 <p style={{
                     color: 'var(--color-text-secondary)',
-                    marginBottom: '3rem',
+                    marginBottom: '2rem',
                     maxWidth: '400px',
-                    margin: '0 auto 3rem auto'
+                    margin: '0 auto 2rem auto'
                 }}>
                     On and Noch 만의 감각적인 디자인으로<br />
                     당신의 공간을 새롭게 정의하세요.
