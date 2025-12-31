@@ -53,10 +53,14 @@ export default function Layout({ children }) {
                     alt="On and Noch"
                     onClick={() => navigate('/')}
                     style={{
-                        height: '150px',
+                        position: 'absolute',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        height: '120px',
                         cursor: 'pointer',
                         filter: 'brightness(0) invert(1)', // Make it white
-                        transition: 'opacity 0.2s'
+                        transition: 'opacity 0.2s',
+                        zIndex: 101
                     }}
                     onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
                     onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
