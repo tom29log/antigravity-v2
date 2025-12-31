@@ -215,37 +215,48 @@ export default function StylePage() {
                         <p style={{ color: '#aaa', marginBottom: '1rem' }}>Select a reference image below:</p>
 
                         {/* Reference Grid */}
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(3, 1fr)',
-                            gap: '1rem',
+                        {/* Reference Slider (Expanding) */}
+                        <div className="style-slider" style={{
+                            display: 'flex',
+                            gap: '10px',
                             width: '100%',
+                            height: '400px', // Fixed height for the slider
                             marginBottom: '3rem',
-                            overflowY: 'auto'
+                            padding: '1rem 0',
+                            overflowX: 'auto',
+                            scrollbarWidth: 'none', // Hide scrollbar Firefox
+                            msOverflowStyle: 'none',  // Hide scrollbar IE
+                            alignItems: 'center'
                         }}>
-                            {/* If no images fetched, show specific message or placeholders if you want. 
-                                For now, we show message if empty. */}
                             {currentRefImages.length > 0 ? (
                                 currentRefImages.map((imgUrl, idx) => (
                                     <div
                                         key={idx}
                                         onClick={() => setSelectedImageIdx(idx)}
+                                        className={`slider-item ${selectedImageIdx === idx ? 'selected' : ''}`}
                                         style={{
-                                            aspectRatio: '4/3',
-                                            overflow: 'hidden',
-                                            borderRadius: '4px',
+                                            height: '100%',
+                                            borderRadius: '20px',
                                             cursor: 'pointer',
+                                            position: 'relative',
+                                            overflow: 'hidden',
+                                            transition: 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)',
+                                            // Dynamic Flex Logic handled in CSS or inline if needed, but CSS class is cleaner for hover.
+                                            // Let's use simple inline styles for the base, and we'll add a <style> block or use global css for the hover expansion.
+                                            flex: '1',
+                                            minWidth: '60px', // collapsed width
                                             border: selectedImageIdx === idx ? '4px solid var(--color-accent)' : '2px solid transparent',
-                                            opacity: (selectedImageIdx === null || selectedImageIdx === idx) ? 1 : 0.5,
-                                            transition: 'all 0.2s'
+                                            filter: (selectedImageIdx !== null && selectedImageIdx !== idx) ? 'brightness(0.5)' : 'brightness(1)'
                                         }}
+                                        // Inline hover attempt implies we need state or CSS. Using a scoped style block approach roughly or just rely on global css.
+                                        // Actually, let's inject a style tag for this specific page or use onMouseOver.
                                         onMouseOver={(e) => {
-                                            const img = e.currentTarget.querySelector('img');
-                                            if (img) img.style.transform = 'scale(1.1)';
+                                            e.currentTarget.style.flex = '5'; // Expand significantly
+                                            e.currentTarget.style.minWidth = '300px';
                                         }}
                                         onMouseOut={(e) => {
-                                            const img = e.currentTarget.querySelector('img');
-                                            if (img) img.style.transform = 'scale(1)';
+                                            e.currentTarget.style.flex = '1';
+                                            e.currentTarget.style.minWidth = '60px';
                                         }}
                                     >
                                         <img
@@ -255,19 +266,37 @@ export default function StylePage() {
                                                 width: '100%',
                                                 height: '100%',
                                                 objectFit: 'cover',
-                                                transition: 'transform 0.4s ease'
+                                                position: 'absolute',
+                                                top: 0,
+                                                left: 0
                                             }}
                                         />
+                                        {/* Selection Checkmark Overlay */}
+                                        {selectedImageIdx === idx && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                bottom: '20px',
+                                                right: '20px',
+                                                backgroundColor: 'var(--color-accent)',
+                                                borderRadius: '50%',
+                                                width: '40px',
+                                                height: '40px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                                                zIndex: 2
+                                            }}>
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="black" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                                </svg>
+                                            </div>
+                                        )}
                                     </div>
                                 ))
                             ) : (
-                                <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#888', padding: '2rem' }}>
+                                <div style={{ width: '100%', textAlign: 'center', color: '#888', padding: '2rem' }}>
                                     <p>Reference images coming soon...</p>
-                                    {/* Temporary fallback to main image so modal isn't empty */}
-                                    <img
-                                        src={selectedStyle.image}
-                                        style={{ width: '300px', height: 'auto', marginTop: '1rem', opacity: 0.5 }}
-                                    />
                                 </div>
                             )}
                         </div>
