@@ -19,6 +19,19 @@ export default function StartPage() {
             position: 'relative',
             minHeight: '100vh'
         }}>
+            <img
+                src="/assets/logo_main.png"
+                alt="On and Noch"
+                style={{
+                    position: 'absolute',
+                    top: '3rem',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '120px',
+                    height: 'auto',
+                    zIndex: 10
+                }}
+            />
             <div className="fade-in">
                 <p style={{
                     color: 'var(--color-accent)',
