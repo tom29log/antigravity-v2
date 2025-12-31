@@ -198,10 +198,9 @@ export default function SummaryPage() {
                         background: '#222',
                         padding: '2rem',
                         borderRadius: '16px',
-                        border: '1px solid rgba(255,255,255,0.6)',
+                        border: '1px solid #fff',
                         position: 'relative'
                     }}>
-                        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '5px', background: '#888' }}></div>
                         <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Standard Plan</h3>
                         <p style={{ color: '#888', marginBottom: '2rem' }}>Cost-effective smart interior.</p>
 
