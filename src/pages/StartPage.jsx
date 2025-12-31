@@ -29,7 +29,8 @@ export default function StartPage() {
                     transform: 'translateX(-50%)',
                     width: '120px',
                     height: 'auto',
-                    zIndex: 10
+                    zIndex: 10,
+                    filter: 'brightness(0)'
                 }}
             />
             <div className="fade-in">
