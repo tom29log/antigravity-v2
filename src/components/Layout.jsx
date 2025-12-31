@@ -53,7 +53,7 @@ export default function Layout({ children }) {
                     alt="On and Noch"
                     onClick={() => navigate('/')}
                     style={{
-                        height: '50px',
+                        height: '150px',
                         cursor: 'pointer',
                         filter: 'brightness(0) invert(1)', // Make it white
                         transition: 'opacity 0.2s'
