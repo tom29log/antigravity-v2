@@ -20,18 +20,18 @@ export default function StartPage() {
                 backgroundImage: `url('https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1974&q=80')`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
-                filter: 'brightness(1.15) contrast(1.05)', // Boost sunlight
+                filter: 'brightness(1.0) contrast(1.0)', // Reduced from 1.15/1.05
                 zIndex: 0
             }} />
 
-            {/* Subtle Gradient Overlay (Lighter) */}
+            {/* Subtle Gradient Overlay (Middle Ground) */}
             <div style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,
                 width: '100%',
                 height: '100%',
-                background: 'linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.0))', // Much clearer
+                background: 'linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.3))', // Darker than 0.2 but lighter than original 0.7
                 zIndex: 1
             }} />
 
