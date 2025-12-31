@@ -4,7 +4,7 @@ import { useEstimation } from '../contexts/EstimationContext';
 import Layout from '../components/Layout';
 
 
-const DEFAULT_SECTIONS = [
+const SECTIONS = [
     {
         id: 'floor',
         title: 'Floor Material',
@@ -37,51 +37,27 @@ const DEFAULT_SECTIONS = [
 export default function MaterialPage() {
     const navigate = useNavigate();
     const { materials, setMaterials, details, serviceType } = useEstimation();
-    const [sections, setSections] = useState(DEFAULT_SECTIONS);
+    const [imageConfig, setImageConfig] = useState({});
 
-    // Fetch Materials from Google Sheet
+    // Fetch dynamic project images
+    // Fetch dynamic project images - Deprecated (Firebase Removal)
+    /*
     useEffect(() => {
-        const fetchMaterials = async () => {
+        const fetchConfig = async () => {
+            if (!db) return;
             try {
-                // If the URL is just placeholder, this fetch might fail or return empty, which is fine (fallback)
-                const data = await GoogleSheetService.fetchCSV(GOOGLE_SHEET_URLS.MATERIALS);
-                const mappedMaterials = GoogleSheetService.mapMaterials(data);
-
-                if (mappedMaterials.length > 0) {
-                    // Group by category
-                    const grouped = {
-                        floor: [],
-                        wall: [],
-                        ceiling: []
-                    };
-
-                    mappedMaterials.forEach(item => {
-                        if (grouped[item.category]) {
-                            grouped[item.category].push(item);
-                        }
-                    });
-
-                    // Sort each group by order
-                    Object.keys(grouped).forEach(key => {
-                        grouped[key].sort((a, b) => a.order - b.order);
-                    });
-
-                    // Update sections state merging with defaults (Sheet data overrides if present for that category)
-                    setSections(prevSections => prevSections.map(section => {
-                        const sheetOptions = grouped[section.id];
-                        if (sheetOptions && sheetOptions.length > 0) {
-                            return { ...section, options: sheetOptions };
-                        }
-                        return section;
-                    }));
+                const docRef = doc(db, 'config', 'materialImages');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    setImageConfig(docSnap.data());
                 }
             } catch (error) {
-                console.warn("Could not fetch materials from sheet (using defaults):", error);
+                console.error("Error fetching material config:", error);
             }
         };
-
-        fetchMaterials();
+        fetchConfig();
     }, []);
+    */
 
     // Kitchen Local State 
     // (We could put this in context or local, but context is better for summary)

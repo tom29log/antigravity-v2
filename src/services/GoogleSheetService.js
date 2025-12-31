@@ -4,9 +4,7 @@ export const GOOGLE_SHEET_URLS = {
     // Portfolio Tab
     PORTFOLIO: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTeoDruCEB9bn-gBsvBr36EtpP843Lxyyw3ATKPA55tyYFE3hQnuaP71tDZkhoI07KYZMfrBI_9UTNC/pub?gid=378727619&single=true&output=csv',
     // Aesthetics Tab
-    AESTHETICS: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTeoDruCEB9bn-gBsvBr36EtpP843Lxyyw3ATKPA55tyYFE3hQnuaP71tDZkhoI07KYZMfrBI_9UTNC/pub?gid=906290349&single=true&output=csv',
-    // Materials Tab
-    MATERIALS: 'PLACEHOLDER_FOR_MATERIALS_SHEET_URL'
+    AESTHETICS: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTeoDruCEB9bn-gBsvBr36EtpP843Lxyyw3ATKPA55tyYFE3hQnuaP71tDZkhoI07KYZMfrBI_9UTNC/pub?gid=906290349&single=true&output=csv'
 };
 
 export const GoogleSheetService = {
@@ -117,15 +115,5 @@ export const GoogleSheetService = {
                 images: images
             };
         });
-    },
-
-    mapMaterials(rows) {
-        return rows.map(row => ({
-            category: row.category ? row.category.toLowerCase().trim() : '', // 'floor', 'wall', 'ceiling'
-            id: row.id || Math.random().toString(36),
-            name: row.name || 'Unnamed Material',
-            img: row.image || '',
-            order: parseInt(row.order) || 999
-        })).filter(item => item.category && item.img); // Filter out invalid rows
     }
 };
