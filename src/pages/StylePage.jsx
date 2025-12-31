@@ -237,13 +237,27 @@ export default function StylePage() {
                                             cursor: 'pointer',
                                             border: selectedImageIdx === idx ? '4px solid var(--color-accent)' : '2px solid transparent',
                                             opacity: (selectedImageIdx === null || selectedImageIdx === idx) ? 1 : 0.5,
+                                            opacity: (selectedImageIdx === null || selectedImageIdx === idx) ? 1 : 0.5,
                                             transition: 'all 0.2s'
+                                        }}
+                                        onMouseOver={(e) => {
+                                            const img = e.currentTarget.querySelector('img');
+                                            if (img) img.style.transform = 'scale(1.1)';
+                                        }}
+                                        onMouseOut={(e) => {
+                                            const img = e.currentTarget.querySelector('img');
+                                            if (img) img.style.transform = 'scale(1)';
                                         }}
                                     >
                                         <img
                                             src={imgUrl}
                                             alt={`Ref ${idx}`}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover',
+                                                transition: 'transform 0.4s ease'
+                                            }}
                                         />
                                     </div>
                                 ))
