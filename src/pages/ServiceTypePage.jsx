@@ -36,8 +36,13 @@ const TypeCard = ({ title, subtitle, onClick, image, isAnimating, isSelected }) 
                 // Simpler approach: fixed fullscreen overlay transition
             };
         } else {
-            // Fade out others
-            cardStyle = { ...cardStyle, opacity: 0, transform: 'scale(0.9)' };
+            // Fade out others (Change transition to be instant/fast)
+            cardStyle = {
+                ...cardStyle,
+                opacity: 0,
+                transform: 'scale(0.9)',
+                transition: 'opacity 0.3s ease, transform 0.3s ease'
+            };
         }
     }
 
