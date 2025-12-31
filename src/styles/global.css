@@ -74,3 +74,23 @@ h6 {
     transform: translateY(0);
   }
 }
+/* Logo Animation */
+.logo-interactive {
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.logo-interactive:hover {
+  animation: logoWave 2s ease-in-out infinite;
+}
+
+@keyframes logoWave {
+  0% { transform: scale(1); }
+  10% { transform: scale(1.1) rotate(0deg); }
+  25% { transform: scale(1.1) rotate(-3deg); }
+  40% { transform: scale(1.1) rotate(3deg); }
+  55% { transform: scale(1.1) rotate(-2deg); }
+  70% { transform: scale(1.1) rotate(2deg); }
+  85% { transform: scale(1.1) rotate(-1deg); }
+  100% { transform: scale(1.1) rotate(0deg); }
+}

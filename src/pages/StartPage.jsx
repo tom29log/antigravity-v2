@@ -19,26 +19,32 @@ export default function StartPage() {
             position: 'relative',
             minHeight: '100vh'
         }}>
-            <div
-                style={{
-                    position: 'absolute',
-                    top: '5rem',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '120px',
-                    height: '120px',
-                    zIndex: 10,
-                    backgroundColor: 'var(--color-accent)',
-                    maskImage: 'url(/assets/logo_main.png)',
-                    WebkitMaskImage: 'url(/assets/logo_main.png)',
-                    maskSize: 'contain',
-                    WebkitMaskSize: 'contain',
-                    maskRepeat: 'no-repeat',
-                    WebkitMaskRepeat: 'no-repeat',
-                    maskPosition: 'center',
-                    WebkitMaskPosition: 'center'
-                }}
-            />
+            {/* Logo Wrapper for Positioning */}
+            <div style={{
+                position: 'absolute',
+                top: '5rem',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 10
+            }}>
+                {/* Interactive Logo */}
+                <div
+                    className="logo-interactive"
+                    style={{
+                        width: '120px',
+                        height: '120px',
+                        backgroundColor: 'var(--color-accent)',
+                        maskImage: 'url(/assets/logo_main.png)',
+                        WebkitMaskImage: 'url(/assets/logo_main.png)',
+                        maskSize: 'contain',
+                        WebkitMaskSize: 'contain',
+                        maskRepeat: 'no-repeat',
+                        WebkitMaskRepeat: 'no-repeat',
+                        maskPosition: 'center',
+                        WebkitMaskPosition: 'center'
+                    }}
+                />
+            </div>
             <div className="fade-in">
                 <p style={{
                     color: 'var(--color-accent)',
