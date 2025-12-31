@@ -237,7 +237,6 @@ export default function StylePage() {
                                             cursor: 'pointer',
                                             border: selectedImageIdx === idx ? '4px solid var(--color-accent)' : '2px solid transparent',
                                             opacity: (selectedImageIdx === null || selectedImageIdx === idx) ? 1 : 0.5,
-                                            opacity: (selectedImageIdx === null || selectedImageIdx === idx) ? 1 : 0.5,
                                             transition: 'all 0.2s'
                                         }}
                                         onMouseOver={(e) => {
