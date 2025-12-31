@@ -15,7 +15,10 @@ const TypeCard = ({ title, subtitle, onClick, image, isAnimating, isSelected }) 
         cursor: 'pointer',
         boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
         transition: 'transform 2.0s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 2.0s ease',
-        zIndex: 1
+        zIndex: 1,
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
+        willChange: 'transform, opacity'
     };
 
     if (isAnimating) {
@@ -98,10 +101,10 @@ export default function ServiceTypePage() {
         setSelectedType(type);
         setIsAnimating(true);
 
-        // Wait for animation
+        // Wait for animation (overlap: nav happens before animation ends)
         setTimeout(() => {
             navigate('/details');
-        }, 2000);
+        }, 1500);
     };
 
     return (
