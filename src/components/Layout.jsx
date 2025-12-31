@@ -49,11 +49,11 @@ export default function Layout({ children }) {
                 </div>
 
                 <img
-                    src="/assets/logo_main.png"
+                    src="/assets/logo_header.png"
                     alt="On and Noch"
                     onClick={() => navigate('/')}
                     style={{
-                        height: '35px',
+                        height: '50px',
                         cursor: 'pointer',
                         filter: 'brightness(0) invert(1)', // Make it white
                         transition: 'opacity 0.2s'
