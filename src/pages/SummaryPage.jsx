@@ -198,7 +198,7 @@ export default function SummaryPage() {
                         background: '#222',
                         padding: '2rem',
                         borderRadius: '16px',
-                        border: '1px solid #444',
+                        border: '1px solid rgba(255,255,255,0.6)',
                         position: 'relative'
                     }}>
                         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '5px', background: '#888' }}></div>
@@ -206,9 +206,8 @@ export default function SummaryPage() {
                         <p style={{ color: '#888', marginBottom: '2rem' }}>Cost-effective smart interior.</p>
 
                         <ul style={{ listStyle: 'none', marginBottom: '2rem', color: '#aaa', lineHeight: '1.8' }}>
-                            <li>✓ 기본 마감재 (가성비)</li>
+                            <li>✓ 가성비 마감재로 깔끔한 마감</li>
                             <li>✓ 기본 조명 시공</li>
-                            <li>✓ 2주 하자 보수 보증</li>
                             <li>✓ 평당 150만원 ~</li>
                         </ul>
 
