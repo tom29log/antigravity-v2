@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEstimation } from '../contexts/EstimationContext';
 import Layout from '../components/Layout';
@@ -39,6 +39,48 @@ export default function StylePage() {
 
     // Aesthetic Data from Google Sheet
     const [aestheticData, setAestheticData] = useState({});
+
+    // Slider Focus Logic
+    const [focusedIndex, setFocusedIndex] = useState(0);
+    const sliderRef = useRef(null);
+
+    const handleScroll = () => {
+        if (!sliderRef.current) return;
+
+        const container = sliderRef.current;
+        const containerCenter = container.getBoundingClientRect().left + container.offsetWidth / 2;
+
+        const children = Array.from(container.children);
+        let closestIndex = 0;
+        let minDist = Infinity;
+
+        children.forEach((child, idx) => {
+            // Check if it's actually an item (skip empty placeholders if any)
+            if (!child.classList.contains('slider-item')) return;
+
+            const rect = child.getBoundingClientRect();
+            const childCenter = rect.left + rect.width / 2;
+            const dist = Math.abs(containerCenter - childCenter);
+
+            if (dist < minDist) {
+                minDist = dist;
+                closestIndex = idx;
+            }
+        });
+
+        setFocusedIndex(closestIndex);
+    };
+
+    // Initialize focus when modal opens
+    useEffect(() => {
+        if (isModalOpen) {
+            // Small timeout to wait for render
+            setTimeout(() => {
+                setFocusedIndex(0);
+                if (sliderRef.current) sliderRef.current.scrollLeft = 0;
+            }, 100);
+        }
+    }, [isModalOpen]);
 
     // Fetch Aesthetic Reference Images
     useEffect(() => {
@@ -216,23 +258,35 @@ export default function StylePage() {
 
                         {/* Reference Grid */}
                         {/* Reference Slider (Expanding) */}
-                        <div className="style-slider" style={{
-                            display: 'flex',
-                            gap: '10px',
-                            width: '100%',
-                            height: '400px', // Fixed height for the slider
-                            marginBottom: '3rem',
-                            padding: '1rem 0',
-                            overflowX: 'auto',
-                            scrollbarWidth: 'none', // Hide scrollbar Firefox
-                            msOverflowStyle: 'none',  // Hide scrollbar IE
-                            alignItems: 'center'
-                        }}>
+                        <div
+                            className="style-slider"
+                            ref={sliderRef}
+                            onScroll={handleScroll}
+                            style={{
+                                display: 'flex',
+                                gap: '15px',
+                                width: '100%',
+                                height: '400px', // Fixed height for the slider
+                                marginBottom: '3rem',
+                                padding: '1rem 20%', // Add padding so first/last items can be centered
+                                overflowX: 'auto',
+                                scrollbarWidth: 'none', // Hide scrollbar Firefox
+                                msOverflowStyle: 'none',  // Hide scrollbar IE
+                                alignItems: 'center',
+                                scrollSnapType: 'x mandatory' // Optional: for snapping
+                            }}>
                             {currentRefImages.length > 0 ? (
                                 currentRefImages.map((imgUrl, idx) => (
                                     <div
                                         key={idx}
-                                        onClick={() => setSelectedImageIdx(idx)}
+                                        onClick={() => {
+                                            setSelectedImageIdx(idx);
+                                            // Optional: Scroll to clicked item
+                                            const child = sliderRef.current.children[idx];
+                                            if (child) {
+                                                child.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                                            }
+                                        }}
                                         className={`slider-item ${selectedImageIdx === idx ? 'selected' : ''}`}
                                         style={{
                                             height: '100%',
@@ -241,22 +295,13 @@ export default function StylePage() {
                                             position: 'relative',
                                             overflow: 'hidden',
                                             transition: 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)',
-                                            // Dynamic Flex Logic handled in CSS or inline if needed, but CSS class is cleaner for hover.
-                                            // Let's use simple inline styles for the base, and we'll add a <style> block or use global css for the hover expansion.
-                                            flex: '1',
-                                            minWidth: '60px', // collapsed width
+                                            // Expanded if focused
+                                            flex: focusedIndex === idx ? '0 0 300px' : '0 0 80px',
+                                            opacity: focusedIndex === idx ? 1 : 0.6,
+                                            transform: focusedIndex === idx ? 'scale(1.05)' : 'scale(0.9)',
+
                                             border: selectedImageIdx === idx ? '4px solid var(--color-accent)' : '2px solid transparent',
-                                            filter: (selectedImageIdx !== null && selectedImageIdx !== idx) ? 'brightness(0.5)' : 'brightness(1)'
-                                        }}
-                                        // Inline hover attempt implies we need state or CSS. Using a scoped style block approach roughly or just rely on global css.
-                                        // Actually, let's inject a style tag for this specific page or use onMouseOver.
-                                        onMouseOver={(e) => {
-                                            e.currentTarget.style.flex = '5'; // Expand significantly
-                                            e.currentTarget.style.minWidth = '300px';
-                                        }}
-                                        onMouseOut={(e) => {
-                                            e.currentTarget.style.flex = '1';
-                                            e.currentTarget.style.minWidth = '60px';
+                                            scrollSnapAlign: 'center'
                                         }}
                                     >
                                         <img
