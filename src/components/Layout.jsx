@@ -56,7 +56,7 @@ export default function Layout({ children }) {
                         position: 'absolute',
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        height: '120px',
+                        height: '200px',
                         cursor: 'pointer',
                         filter: 'brightness(0) invert(1)', // Make it white
                         transition: 'opacity 0.2s',
