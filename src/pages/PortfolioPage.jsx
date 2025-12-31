@@ -5,47 +5,39 @@ import { GoogleSheetService, GOOGLE_SHEET_URLS } from '../services/GoogleSheetSe
 
 const ImageSlider = ({ images, objectFit = 'cover' }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [touchStart, setTouchStart] = useState(null);
-    const [touchEnd, setTouchEnd] = useState(null);
+    const sliderRef = useRef(null);
 
-    // Minimum swipe distance (in px) 
-    const minSwipeDistance = 50;
-
-    const onTouchStart = (e) => {
-        setTouchEnd(null); // Reset
-        setTouchStart(e.targetTouches[0].clientX);
+    // Update active dot on scroll
+    const handleScroll = () => {
+        if (!sliderRef.current) return;
+        const scrollLeft = sliderRef.current.scrollLeft;
+        const width = sliderRef.current.offsetWidth;
+        // Calculate index based on scroll position - simple and robust
+        const newIndex = Math.round(scrollLeft / width);
+        setCurrentIndex(newIndex);
     };
 
-    const onTouchMove = (e) => setTouchEnd(e.targetTouches[0].clientX);
-
-    const onTouchEnd = () => {
-        if (!touchStart || !touchEnd) return;
-
-        const distance = touchStart - touchEnd;
-        const isLeftSwipe = distance > minSwipeDistance;
-        const isRightSwipe = distance < -minSwipeDistance;
-
-        if (isLeftSwipe) {
-            nextSlide();
-        }
-        if (isRightSwipe) {
-            prevSlide();
-        }
+    const scrollToSlide = (idx) => {
+        if (!sliderRef.current) return;
+        const width = sliderRef.current.offsetWidth;
+        sliderRef.current.scrollTo({
+            left: width * idx,
+            behavior: 'smooth'
+        });
     };
 
     const nextSlide = (e) => {
         if (e) e.stopPropagation();
-        setCurrentIndex((prev) => (prev + 1) % images.length);
+        if (currentIndex < images.length - 1) {
+            scrollToSlide(currentIndex + 1);
+        }
     };
 
     const prevSlide = (e) => {
         if (e) e.stopPropagation();
-        setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-    };
-
-    const goToSlide = (e, idx) => {
-        e.stopPropagation();
-        setCurrentIndex(idx);
+        if (currentIndex > 0) {
+            scrollToSlide(currentIndex - 1);
+        }
     };
 
     if (!images || images.length === 0) {
@@ -53,27 +45,37 @@ const ImageSlider = ({ images, objectFit = 'cover' }) => {
     }
 
     return (
-        <div
-            style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', touchAction: 'pan-y' }}
-            onTouchStart={onTouchStart}
-            onTouchMove={onTouchMove}
-            onTouchEnd={onTouchEnd}
-        >
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+            {/* Scroll Container */}
             <div
+                ref={sliderRef}
+                onScroll={handleScroll}
+                className="slider-container"
                 style={{
                     display: 'flex',
                     width: '100%',
                     height: '100%',
-                    transform: `translateX(-${currentIndex * 100}%)`,
-                    transition: 'transform 0.5s cubic-bezier(0.25, 1, 0.5, 1)'
+                    overflowX: 'auto',
+                    scrollSnapType: 'x mandatory',
+                    scrollbarWidth: 'none', // Hide scrollbar Firefox
+                    msOverflowStyle: 'none',  // Hide scrollbar IE
+                    scrollBehavior: 'smooth'
                 }}
             >
+                {/* Hide Scrollbar Webkit */}
+                <style>{`
+                    .slider-container::-webkit-scrollbar {
+                        display: none;
+                    }
+                `}</style>
+
                 {images.map((img, idx) => (
                     <div
                         key={idx}
                         style={{
                             minWidth: '100%',
                             height: '100%',
+                            scrollSnapAlign: 'start',
                             position: 'relative'
                         }}
                     >
@@ -84,8 +86,8 @@ const ImageSlider = ({ images, objectFit = 'cover' }) => {
                                 width: '100%',
                                 height: '100%',
                                 objectFit: objectFit,
-                                userSelect: 'none',
-                                pointerEvents: 'none' // Prevent image drag behavior interrupting swipe
+                                pointerEvents: 'none', // Allow touch drag on container, prevent img drag
+                                userSelect: 'none'
                             }}
                         />
                     </div>
@@ -105,7 +107,7 @@ const ImageSlider = ({ images, objectFit = 'cover' }) => {
                 {images.map((_, idx) => (
                     <div
                         key={idx}
-                        onClick={(e) => goToSlide(e, idx)}
+                        onClick={(e) => { e.stopPropagation(); scrollToSlide(idx); }}
                         style={{
                             width: '8px',
                             height: '8px',
@@ -118,9 +120,10 @@ const ImageSlider = ({ images, objectFit = 'cover' }) => {
                 ))}
             </div>
 
-            {/* Arrows (Visible on all devices for clarity, or just larger screens) */}
+            {/* Arrows */}
             {images.length > 1 && (
                 <>
+                    {/* Hide Prev Arrow if at start */}
                     <button
                         onClick={prevSlide}
                         style={{
@@ -135,7 +138,7 @@ const ImageSlider = ({ images, objectFit = 'cover' }) => {
                             width: '30px',
                             height: '30px',
                             cursor: 'pointer',
-                            display: 'flex',
+                            display: currentIndex === 0 ? 'none' : 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             zIndex: 20
@@ -143,6 +146,7 @@ const ImageSlider = ({ images, objectFit = 'cover' }) => {
                     >
                         ‹
                     </button>
+                    {/* Hide Next Arrow if at end */}
                     <button
                         onClick={nextSlide}
                         style={{
@@ -157,7 +161,7 @@ const ImageSlider = ({ images, objectFit = 'cover' }) => {
                             width: '30px',
                             height: '30px',
                             cursor: 'pointer',
-                            display: 'flex',
+                            display: currentIndex === images.length - 1 ? 'none' : 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
                             zIndex: 20
