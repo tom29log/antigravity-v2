@@ -3,7 +3,7 @@ import Layout from '../components/Layout';
 
 import { GoogleSheetService, GOOGLE_SHEET_URLS } from '../services/GoogleSheetService';
 
-const ImageSlider = ({ images }) => {
+const ImageSlider = ({ images, onImageClick, objectFit = 'cover' }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
     // Auto-slide functionality
@@ -48,9 +48,13 @@ const ImageSlider = ({ images }) => {
                         left: 0,
                         width: '100%',
                         height: '100%',
-                        objectFit: 'cover',
+                        objectFit: objectFit,
                         opacity: idx === currentIndex ? 1 : 0,
-                        transition: 'opacity 0.4s ease-in-out'
+                        transition: 'opacity 0.4s ease-in-out',
+                        cursor: onImageClick ? 'pointer' : 'default'
+                    }}
+                    onClick={(e) => {
+                        if (onImageClick) onImageClick();
                     }}
                 />
             ))}
@@ -135,6 +139,7 @@ const ImageSlider = ({ images }) => {
 export default function PortfolioPage() {
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [selectedProject, setSelectedProject] = useState(null);
 
     useEffect(() => {
         const fetchProjects = async () => {
@@ -162,6 +167,51 @@ export default function PortfolioPage() {
 
     return (
         <Layout>
+            {selectedProject && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.95)',
+                    zIndex: 10000,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    padding: '20px'
+                }}>
+                    <button
+                        onClick={() => setSelectedProject(null)}
+                        style={{
+                            position: 'absolute',
+                            top: '30px',
+                            right: '30px',
+                            background: 'transparent',
+                            border: '1px solid #fff',
+                            color: '#fff',
+                            padding: '10px 20px',
+                            cursor: 'pointer',
+                            borderRadius: '4px',
+                            fontSize: '1rem',
+                            zIndex: 10001
+                        }}
+                    >
+                        Back to List
+                    </button>
+
+                    <div style={{ width: '90%', height: '70%', marginBottom: '20px' }}>
+                        <ImageSlider images={selectedProject.images} objectFit="contain" />
+                    </div>
+
+                    <div style={{ color: '#fff', textAlign: 'center', maxWidth: '800px' }}>
+                        <h2 style={{ fontSize: '2rem', marginBottom: '10px' }}>{selectedProject.title}</h2>
+                        <p style={{ fontSize: '1rem', color: '#ccc' }}>{selectedProject.desc}</p>
+                    </div>
+                </div>
+            )}
+
             <div className="container fade-in" style={{ padding: '6rem 0' }}>
                 <h2 style={{
                     textAlign: 'center',
@@ -207,7 +257,7 @@ export default function PortfolioPage() {
                                     overflow: 'hidden',
                                     backgroundColor: '#111'
                                 }}>
-                                    <ImageSlider images={project.images} />
+                                    <ImageSlider images={project.images} onImageClick={() => setSelectedProject(project)} />
                                 </div>
 
                                 {/* Text Info */}
