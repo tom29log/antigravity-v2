@@ -92,7 +92,7 @@ export default function MaterialPage() {
                 </h2>
 
                 {/* Standard Sections: Floor, Wall, Ceiling */}
-                {sections.map(section => (
+                {SECTIONS.map(section => (
                     <div key={section.id} style={{ marginBottom: '4rem' }}>
                         <h3 style={{
                             fontSize: '1.5rem',
