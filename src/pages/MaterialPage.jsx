@@ -4,7 +4,7 @@ import { useEstimation } from '../contexts/EstimationContext';
 import Layout from '../components/Layout';
 
 
-const SECTIONS = [
+const DEFAULT_SECTIONS = [
     {
         id: 'floor',
         title: 'Floor Material',
@@ -37,27 +37,51 @@ const SECTIONS = [
 export default function MaterialPage() {
     const navigate = useNavigate();
     const { materials, setMaterials, details, serviceType } = useEstimation();
-    const [imageConfig, setImageConfig] = useState({});
+    const [sections, setSections] = useState(DEFAULT_SECTIONS);
 
-    // Fetch dynamic project images
-    // Fetch dynamic project images - Deprecated (Firebase Removal)
-    /*
+    // Fetch Materials from Google Sheet
     useEffect(() => {
-        const fetchConfig = async () => {
-            if (!db) return;
+        const fetchMaterials = async () => {
             try {
-                const docRef = doc(db, 'config', 'materialImages');
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                    setImageConfig(docSnap.data());
+                // If the URL is just placeholder, this fetch might fail or return empty, which is fine (fallback)
+                const data = await GoogleSheetService.fetchCSV(GOOGLE_SHEET_URLS.MATERIALS);
+                const mappedMaterials = GoogleSheetService.mapMaterials(data);
+
+                if (mappedMaterials.length > 0) {
+                    // Group by category
+                    const grouped = {
+                        floor: [],
+                        wall: [],
+                        ceiling: []
+                    };
+
+                    mappedMaterials.forEach(item => {
+                        if (grouped[item.category]) {
+                            grouped[item.category].push(item);
+                        }
+                    });
+
+                    // Sort each group by order
+                    Object.keys(grouped).forEach(key => {
+                        grouped[key].sort((a, b) => a.order - b.order);
+                    });
+
+                    // Update sections state merging with defaults (Sheet data overrides if present for that category)
+                    setSections(prevSections => prevSections.map(section => {
+                        const sheetOptions = grouped[section.id];
+                        if (sheetOptions && sheetOptions.length > 0) {
+                            return { ...section, options: sheetOptions };
+                        }
+                        return section;
+                    }));
                 }
             } catch (error) {
-                console.error("Error fetching material config:", error);
+                console.warn("Could not fetch materials from sheet (using defaults):", error);
             }
         };
-        fetchConfig();
+
+        fetchMaterials();
     }, []);
-    */
 
     // Kitchen Local State 
     // (We could put this in context or local, but context is better for summary)
@@ -92,7 +116,7 @@ export default function MaterialPage() {
                 </h2>
 
                 {/* Standard Sections: Floor, Wall, Ceiling */}
-                {SECTIONS.map(section => (
+                {sections.map(section => (
                     <div key={section.id} style={{ marginBottom: '4rem' }}>
                         <h3 style={{
                             fontSize: '1.5rem',
@@ -110,8 +134,10 @@ export default function MaterialPage() {
                         }}>
                             {section.options.map(opt => {
                                 const isSelected = materials[section.id] === opt.id;
-                                // Use dynamic image if available, else static
-                                const displayImg = imageConfig[opt.id] || opt.img;
+                                // Use dynamic image from sheet or default
+                                const displayImg = opt.img.startsWith('http') ? opt.img :
+                                    (opt.img.startsWith('/') ? opt.img :
+                                        `https://images.unsplash.com/${opt.img}?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80`);
 
                                 return (
                                     <div
