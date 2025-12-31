@@ -22,7 +22,7 @@ export default function StartPage() {
             <div
                 style={{
                     position: 'absolute',
-                    top: '3rem',
+                    top: '5rem',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     width: '120px',
