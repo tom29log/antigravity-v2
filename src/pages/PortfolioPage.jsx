@@ -201,8 +201,14 @@ export default function PortfolioPage() {
                         Back to List
                     </button>
 
-                    <div style={{ width: '90vw', height: '90vh', maxWidth: '1600px', marginBottom: '20px' }}>
-                        <ImageSlider images={selectedProject.images} objectFit="contain" />
+                    <div style={{
+                        width: '70vw',
+                        maxWidth: '1200px',
+                        aspectRatio: '16 / 9',
+                        marginBottom: '20px',
+                        boxShadow: '0 0 30px rgba(0,0,0,0.5)'
+                    }}>
+                        <ImageSlider images={selectedProject.images} objectFit="cover" />
                     </div>
 
                     <div style={{ color: '#fff', textAlign: 'center', maxWidth: '800px' }}>

@@ -148,9 +148,9 @@ export default function StoryPage() {
                         src={selectedImage}
                         alt="Zoomed Story"
                         style={{
-                            maxWidth: '90%',
-                            maxHeight: '90vh',
-                            objectFit: 'contain',
+                            height: '70vh',
+                            aspectRatio: '1 / 1',
+                            objectFit: 'cover',
                             boxShadow: '0 0 50px rgba(0,0,0,0.5)'
                         }}
                     />
