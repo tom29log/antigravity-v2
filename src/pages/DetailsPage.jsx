@@ -85,12 +85,14 @@ export default function DetailsPage() {
 
     return (
         <Layout>
-            <div className="container fade-in" style={{
+            <div className="container" style={{
                 flex: 1,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                padding: '4rem 0'
+                padding: '4rem 0',
+                animation: 'fadeIn 1.5s ease-out forwards',
+                opacity: 0 // Start invisible
             }}>
                 <div style={{ width: '100%', maxWidth: '600px' }}>
                     <h2 style={{ fontSize: '2rem', marginBottom: '2rem', textAlign: 'center' }}>

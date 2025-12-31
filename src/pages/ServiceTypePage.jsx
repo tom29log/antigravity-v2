@@ -14,7 +14,7 @@ const TypeCard = ({ title, subtitle, onClick, image, isAnimating, isSelected }) 
         position: 'relative',
         cursor: 'pointer',
         boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-        transition: 'transform 2.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 2.2s ease',
+        transition: 'transform 2.0s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 2.0s ease',
         zIndex: 1
     };
 
@@ -67,7 +67,7 @@ const TypeCard = ({ title, subtitle, onClick, image, isAnimating, isSelected }) 
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
                 filter: isAnimating && isSelected ? 'brightness(0)' : 'brightness(0.6)',
-                transition: 'filter 2.2s ease'
+                transition: 'filter 2.0s ease'
             }} />
             <div style={{
                 position: 'absolute',
@@ -101,7 +101,7 @@ export default function ServiceTypePage() {
         // Wait for animation
         setTimeout(() => {
             navigate('/details');
-        }, 2200);
+        }, 2000);
     };
 
     return (
