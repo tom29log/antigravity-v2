@@ -48,17 +48,19 @@ export default function Layout({ children }) {
                     )}
                 </div>
 
-                <h1
+                <img
+                    src="/assets/logo_main.png"
+                    alt="On and Noch"
                     onClick={() => navigate('/')}
                     style={{
-                        color: 'var(--color-accent)',
-                        fontSize: '1.5rem',
-                        letterSpacing: '1px',
+                        height: '35px',
                         cursor: 'pointer',
-                        textAlign: 'center'
-                    }}>
-                    On and Noch
-                </h1>
+                        filter: 'brightness(0) invert(1)', // Make it white
+                        transition: 'opacity 0.2s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
+                    onMouseOut={(e) => e.currentTarget.style.opacity = '1'}
+                />
 
                 {/* Right Spacer for balance */}
                 <div style={{ width: '40px' }}></div>
