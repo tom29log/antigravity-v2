@@ -50,7 +50,7 @@ const ImageSlider = ({ images, onImageClick, objectFit = 'cover' }) => {
                         height: '100%',
                         objectFit: objectFit,
                         opacity: idx === currentIndex ? 1 : 0,
-                        transition: 'opacity 0.4s ease-in-out',
+                        transition: 'opacity 0.4s ease-in-out, transform 0.4s ease',
                         cursor: onImageClick ? 'pointer' : 'default'
                     }}
                     onClick={(e) => {
@@ -262,7 +262,15 @@ export default function PortfolioPage() {
                                     borderRadius: '4px',
                                     overflow: 'hidden',
                                     backgroundColor: '#111'
-                                }}>
+                                }}
+                                    onMouseOver={(e) => {
+                                        const imgs = e.currentTarget.querySelectorAll('img');
+                                        imgs.forEach(img => img.style.transform = 'scale(1.1)');
+                                    }}
+                                    onMouseOut={(e) => {
+                                        const imgs = e.currentTarget.querySelectorAll('img');
+                                        imgs.forEach(img => img.style.transform = 'scale(1)');
+                                    }}>
                                     <ImageSlider images={project.images} onImageClick={() => setSelectedProject(project)} />
                                 </div>
 
