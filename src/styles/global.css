@@ -74,23 +74,43 @@ h6 {
     transform: translateY(0);
   }
 }
-/* Logo Animation */
+
+/* Logo Animation - Elastic Jiggle */
 .logo-interactive {
   transition: transform 0.3s ease;
   cursor: pointer;
 }
 
 .logo-interactive:hover {
-  animation: logoWave 2s ease-in-out infinite;
+  animation: logoElastic 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both;
 }
 
-@keyframes logoWave {
-  0% { transform: scale(1); }
-  10% { transform: scale(1.1) rotate(0deg); }
-  25% { transform: scale(1.1) rotate(-3deg); }
-  40% { transform: scale(1.1) rotate(3deg); }
-  55% { transform: scale(1.1) rotate(-2deg); }
-  70% { transform: scale(1.1) rotate(2deg); }
-  85% { transform: scale(1.1) rotate(-1deg); }
-  100% { transform: scale(1.1) rotate(0deg); }
+@keyframes logoElastic {
+  0% {
+    transform: scale(1);
+  }
+
+  30% {
+    transform: scale(1.25, 0.75);
+  }
+
+  40% {
+    transform: scale(0.75, 1.25);
+  }
+
+  50% {
+    transform: scale(1.15, 0.85);
+  }
+
+  65% {
+    transform: scale(0.95, 1.05);
+  }
+
+  75% {
+    transform: scale(1.05, 0.95);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
