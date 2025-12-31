@@ -21,10 +21,9 @@ export default function StartPage() {
         }}>
             {/* Logo Wrapper for Positioning */}
             <div style={{
-                position: 'absolute',
-                top: '5rem',
-                left: '50%',
-                transform: 'translateX(-50%)',
+                display: 'flex',
+                justifyContent: 'center',
+                marginBottom: '2rem',
                 zIndex: 10
             }}>
                 {/* Interactive Logo */}
