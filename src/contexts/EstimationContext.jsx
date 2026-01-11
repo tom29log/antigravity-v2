@@ -14,10 +14,12 @@ export const EstimationProvider = ({ children }) => {
         wall: 'wallpaper_paper',
         ceiling: 'finished',
         bath: false,
-        kitchen: 'modern'
+        kitchen: 'modern',
+        demolition: { isSelected: false, area: 0 }
     });
-    const [estimate, setEstimate] = useState({ standard: 0, premium: 0 }); // Dual estimate
+    const [estimate, setEstimate] = useState({ economy: 0, standard: 0, premium: 0 }); // Triple estimate
     const [selectedPlan, setSelectedPlan] = useState(null); // 'standard' | 'premium'
+    const [attachedDrawing, setAttachedDrawing] = useState(null); // Data URL of the user's drawing
 
     const value = {
         serviceType,
@@ -33,7 +35,9 @@ export const EstimationProvider = ({ children }) => {
         estimate,
         setEstimate,
         selectedPlan,
-        setSelectedPlan
+        setSelectedPlan,
+        attachedDrawing,
+        setAttachedDrawing
     };
 
 

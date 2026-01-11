@@ -58,6 +58,76 @@ h6 {
   padding: 0 1.5rem;
 }
 
+/* Responsive Container for Main Page */
+.responsive-container {
+  width: 100%;
+  height: 100%;
+  padding-top: 10vh;
+  padding-left: 8%;
+  /* Mobile Loop (Existing) */
+  box-sizing: border-box;
+
+  position: relative;
+  /* Ensure it sits above overlays */
+  z-index: 20;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  /* Mobile default: Left align */
+  text-align: left;
+
+  transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  /* Smooth eased transition */
+}
+
+/* Logo wrapper specific handling */
+.responsive-logo-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  /* Mobile: Left */
+  margin-bottom: 1rem;
+  z-index: 10;
+  transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Action Buttons Wrapper */
+.responsive-actions {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: flex-start;
+  align-items: center;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 1rem;
+  transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@media (min-width: 1024px) {
+  .responsive-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding-left: 0;
+    /* Center alignment overrides specific padding */
+    align-items: center;
+    /* Desktop: Center align */
+    text-align: center;
+  }
+
+  .responsive-logo-wrapper {
+    justify-content: center;
+    /* Desktop: Center */
+  }
+
+  .responsive-actions {
+    justify-content: center;
+    /* Desktop: Center */
+  }
+}
+
+
 /* Utilities */
 .fade-in {
   animation: fadeIn var(--transition-medium) forwards;
@@ -113,4 +183,82 @@ h6 {
   100% {
     transform: scale(1);
   }
+}
+
+/* Typing Cursor Blink Animation */
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+.cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: blink 1s infinite;
+  color: var(--color-accent);
+}
+
+/* Pen Drawing Animation */
+/* Pen Drawing Animation - Writing L to R */
+@keyframes penWrite {
+  0% {
+    transform: rotate(-15deg) translate(0, 0);
+  }
+
+  50% {
+    transform: rotate(-15deg) translate(8px, 0);
+  }
+
+  /* Move Right */
+  100% {
+    transform: rotate(-15deg) translate(0, 0);
+  }
+}
+
+@keyframes lineDraw {
+  0% {
+    stroke-dashoffset: 20;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  50% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  /* Line fully drawn */
+  90% {
+    opacity: 0;
+  }
+
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+.pen-icon-animate {
+  display: block;
+  transform-origin: bottom left;
+  /* Pivot from tip */
+  animation: penWrite 2s ease-in-out infinite;
+}
+
+.pen-line-animate {
+  stroke-dasharray: 20;
+  stroke-dashoffset: 20;
+  animation: lineDraw 2s ease-in-out infinite;
 }

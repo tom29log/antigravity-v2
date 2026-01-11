@@ -9,8 +9,9 @@ const SECTIONS = [
         id: 'floor',
         title: 'Floor Material',
         options: [
-            { id: 'maru', name: '마루', img: '/assets/material_maru_wood_1766941753343.png' },
+            { id: 'maru', name: 'wood(마루)', img: '/assets/material_maru_wood_1766941753343.png' },
             { id: 'porcelain', name: 'Porcelain Tile', img: '/assets/material_porcelain_tile_1766941816674.png' },
+            { id: 'tile_deco', name: 'Deco Tile (데코타일or장판)', img: '/assets/material_decotile.png' },
             { id: 'epoxy', name: 'Epoxy(에폭시코팅)', img: '/assets/material_epoxy_coating_1766941788352.png' }
         ]
     },
@@ -29,15 +30,28 @@ const SECTIONS = [
         title: 'Ceiling Type',
         options: [
             { id: 'finished', name: '천정 마감', img: '/assets/material_ceiling_finished_1766941935503.png' },
-            { id: 'exposed', name: '노출 천정', img: '/assets/material_ceiling_exposed_1766941949889.png' }
+            { id: 'exposed', name: '노출 천정', img: '/assets/material_ceiling_exposed_1766941949889.png' },
+            { id: 'none', name: '무선택(현재상태 유지)', img: '/assets/material_ceiling_tex.jpg' }
         ]
     }
 ];
 
 export default function MaterialPage() {
     const navigate = useNavigate();
-    const { materials, setMaterials, details, serviceType } = useEstimation();
+    const { materials, setMaterials, details, serviceType, setDetails } = useEstimation();
     const [imageConfig, setImageConfig] = useState({});
+
+    // Commercial Kitchen Default Area Logic
+    useEffect(() => {
+        if (serviceType === 'commercial' && (details.subType === 'restaurant' || details.subType === 'cafe')) {
+            if (materials.kitchenSpecs?.area === undefined || materials.kitchenSpecs?.area === null) {
+                setMaterials(prev => ({
+                    ...prev,
+                    kitchenSpecs: { ...prev.kitchenSpecs, area: 1 }
+                }));
+            }
+        }
+    }, [serviceType, details.subType, materials.kitchenSpecs?.area, setMaterials]);
 
     // Fetch dynamic project images
     // Fetch dynamic project images - Deprecated (Firebase Removal)
@@ -170,6 +184,7 @@ export default function MaterialPage() {
                                     min="0"
                                     placeholder="주방 평수를 입력하세요"
                                     value={materials.kitchenSpecs?.area || ''}
+                                    onFocus={(e) => e.target.select()}
                                     onChange={(e) => handleKitchenChange('area', e.target.value)}
                                     style={{
                                         width: '100%',
@@ -182,7 +197,7 @@ export default function MaterialPage() {
                                     }}
                                 />
                                 <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#888' }}>
-                                    * 식당/카페의 경우 주방 면적에 따라 별도 단가가 적용됩니다.
+                                    * 식당/카페의 경우 주방 면적에 따라 별도 단가가 적용됩니다.(기본1평)
                                 </p>
                             </div>
                         ) : (
@@ -191,7 +206,7 @@ export default function MaterialPage() {
                                 {/* 1. Cabinet Width */}
                                 <div style={{ marginBottom: '2rem' }}>
                                     <label style={{ display: 'block', marginBottom: '1rem', color: '#ccc' }}>
-                                        Cabinet Width (m): <span style={{ color: 'var(--color-accent)' }}>{materials.kitchenSpecs?.width || 3}m</span>
+                                        Cabinet Width (m): <span style={{ color: 'var(--color-accent)' }}>{materials.kitchenSpecs?.width || 3}m</span> <span style={{ fontSize: '0.8rem', color: '#888' }}>(3m(기본)/추가길이당 추가금)</span>
                                     </label>
                                     <input
                                         type="range"
@@ -252,7 +267,74 @@ export default function MaterialPage() {
                 </div>
 
 
-                {/* Bath Toggle Special Section */}
+                {/* Bath Toggle Special Section - Only for Commercial */}
+                {/* For Residential, bath count is collected in DetailsPage, so we hide it here */}
+                {serviceType === 'commercial' && (
+                    <div style={{ marginBottom: '4rem' }}>
+                        <h3 style={{
+                            fontSize: '1.5rem',
+                            marginBottom: '1.5rem',
+                            color: 'var(--color-accent)',
+                            borderLeft: '4px solid var(--color-accent)',
+                            paddingLeft: '1rem'
+                        }}>
+                            Bathroom Renovation (화장실 리모델링)
+                        </h3>
+                        {/* Commercial: Number Input for Bath Count */}
+                        <div style={{
+                            background: 'var(--color-bg-secondary)',
+                            padding: '2rem',
+                            borderRadius: '16px',
+                            border: '1px solid var(--color-border)'
+                        }}>
+                            <label style={{ display: 'block', marginBottom: '1rem', fontSize: '1.1rem' }}>
+                                Number of Bathrooms to Renovate (개수 선택):
+                            </label>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const current = Number(details.bathCount || 0);
+                                        if (current > 0) {
+                                            const newCount = current - 1;
+                                            setDetails(prev => ({ ...prev, bathCount: newCount }));
+                                            if (newCount === 0) setMaterials(prev => ({ ...prev, bath: false }));
+                                        }
+                                    }}
+                                    style={{
+                                        width: '40px', height: '40px', borderRadius: '50%',
+                                        border: '1px solid #555', background: '#333', color: '#fff', fontSize: '1.2rem', cursor: 'pointer', zIndex: 10, position: 'relative'
+                                    }}
+                                >-</button>
+                                <span style={{ fontSize: '1.5rem', fontWeight: 'bold', width: '40px', textAlign: 'center' }}>
+                                    {details.bathCount || 0}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const current = Number(details.bathCount || 0);
+                                        const newCount = current + 1;
+                                        setDetails(prev => ({ ...prev, bathCount: newCount }));
+                                        setMaterials(prev => ({ ...prev, bath: true }));
+                                    }}
+                                    style={{
+                                        width: '40px', height: '40px', borderRadius: '50%',
+                                        border: '1px solid var(--color-accent)', background: 'var(--color-accent)', color: '#000', fontSize: '1.2rem', cursor: 'pointer', fontWeight: 'bold', zIndex: 10, position: 'relative'
+                                    }}
+                                >+</button>
+                            </div>
+                            <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#888' }}>
+                                * 상업 공간의 경우 화장실 리모델링 개수를 직접 선택(미선택시 할인적용)
+                            </p>
+                        </div>
+                    </div>
+                )}
+
+                {/* Demolition / Structural Section */}
                 <div style={{ marginBottom: '4rem' }}>
                     <h3 style={{
                         fontSize: '1.5rem',
@@ -261,32 +343,67 @@ export default function MaterialPage() {
                         borderLeft: '4px solid var(--color-accent)',
                         paddingLeft: '1rem'
                     }}>
-                        Bathroom Renovation
+                        Demolition / Structural
                     </h3>
-                    <div
-                        onClick={handleBathToggle}
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            padding: '1.5rem 2rem',
-                            background: materials.bath ? 'rgba(212, 175, 55, 0.1)' : 'var(--color-bg-secondary)',
-                            border: materials.bath ? '1px solid var(--color-accent)' : '1px solid var(--color-border)',
-                            borderRadius: '12px',
-                            cursor: 'pointer',
-                            transition: 'all 0.2s'
-                        }}
-                    >
-                        <div style={{
-                            width: '24px',
-                            height: '24px',
-                            border: '2px solid #fff',
-                            marginRight: '1rem',
-                            background: materials.bath ? 'var(--color-accent)' : 'transparent',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center'
-                        }}>
-                            {materials.bath && <span style={{ color: '#000', fontWeight: 'bold' }}>✓</span>}
+                    <div style={{
+                        background: 'var(--color-bg-secondary)',
+                        padding: '2rem',
+                        borderRadius: '16px',
+                        border: '1px solid #444'
+                    }}>
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <label style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                cursor: 'pointer',
+                                fontSize: '1.1rem'
+                            }}>
+                                <input
+                                    type="checkbox"
+                                    checked={materials.demolition?.isSelected || false}
+                                    onChange={(e) => setMaterials(prev => ({
+                                        ...prev,
+                                        demolition: { ...prev.demolition, isSelected: e.target.checked }
+                                    }))}
+                                    style={{
+                                        marginRight: '1rem',
+                                        transform: 'scale(1.5)',
+                                        accentColor: 'var(--color-accent)'
+                                    }}
+                                />
+                                <span style={{ fontWeight: 600 }}>철거 시공 포함 (Demolition)</span>
+                            </label>
                         </div>
-                        <span style={{ fontSize: '1.1rem' }}>화장실 리모델링 포함 (상세에서 개수 선택)</span>
+
+                        {materials.demolition?.isSelected && (
+                            <div className="fade-in" style={{ paddingLeft: '2.5rem' }}>
+                                <label style={{ display: 'block', marginBottom: '1rem', color: '#ccc' }}>
+                                    Demolition Area (평): <span style={{ color: 'var(--color-accent)' }}>{materials.demolition?.area || 0}평</span>
+                                </label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    placeholder="철거 평수를 입력하세요"
+                                    value={materials.demolition?.area || ''}
+                                    onChange={(e) => setMaterials(prev => ({
+                                        ...prev,
+                                        demolition: { ...prev.demolition, area: e.target.value }
+                                    }))}
+                                    style={{
+                                        width: '100%',
+                                        padding: '1rem',
+                                        background: '#333',
+                                        border: '1px solid #555',
+                                        color: '#fff',
+                                        borderRadius: '8px',
+                                        fontSize: '1rem'
+                                    }}
+                                />
+                                <p style={{ marginTop: '0.5rem', fontSize: '0.9rem', color: '#888' }}>
+                                    * 전체 평수가 아닌 실제 철거가 필요한 면적을 입력해주세요.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -344,7 +461,7 @@ export default function MaterialPage() {
                             color: '#000'
                         }}
                     >
-                        Calculate Estimate
+                        견적 확인하기
                     </button>
                 </div>
             </div>

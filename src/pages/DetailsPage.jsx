@@ -71,10 +71,35 @@ export default function DetailsPage() {
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setLocalDetails(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
+        let newValue = type === 'checkbox' ? checked : value;
+
+        // Auto-update bath count logic
+        let newDetails = { ...localDetails, [name]: newValue };
+
+        // Handle number conversions
+        if (name === 'area') {
+            const areaNum = parseInt(newValue) || 0;
+            newDetails.area = newValue; // Keep string for input display
+
+            if (serviceType === 'residential') {
+                // Only auto-update if user hasn't manually set the bath count
+                if (!localDetails.bathCountManuallyChanged) {
+                    if (areaNum >= 25) {
+                        newDetails.bathCount = 2;
+                    } else {
+                        newDetails.bathCount = 1;
+                    }
+                }
+            }
+        }
+
+        // Mark bathCount as manually changed if user touches it
+        if (name === 'bathCount') {
+            newDetails.bathCount = parseInt(newValue); // Ensure number type
+            newDetails.bathCountManuallyChanged = true;
+        }
+
+        setLocalDetails(newDetails);
     };
 
     if (!serviceType) {
@@ -108,6 +133,7 @@ export default function DetailsPage() {
                                         <option value="cafe">카페</option>
                                         <option value="office">사무실/오피스</option>
                                         <option value="store">매장/쇼룸</option>
+                                        <option value="beauty">미용/뷰티샵</option>
                                         <option value="restaurant">식당</option>
                                         <option value="other">기타</option>
                                     </StyledSelect>

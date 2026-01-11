@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEstimation } from '../contexts/EstimationContext';
 import Layout from '../components/Layout';
@@ -95,6 +95,22 @@ export default function ServiceTypePage() {
     const [isAnimating, setIsAnimating] = useState(false);
     const [selectedType, setSelectedType] = useState(null);
 
+    const [typedText, setTypedText] = useState('');
+    const fullText = "Designing your dreams";
+
+    useEffect(() => {
+        let index = 0;
+        const interval = setInterval(() => {
+            if (index <= fullText.length) {
+                setTypedText(fullText.slice(0, index));
+                index++;
+            } else {
+                clearInterval(interval);
+            }
+        }, 100);
+        return () => clearInterval(interval);
+    }, []);
+
     const handleSelect = (type) => {
         if (isAnimating) return;
         setServiceType(type);
@@ -116,9 +132,20 @@ export default function ServiceTypePage() {
                 justifyContent: 'center',
                 padding: '2rem 0'
             }}>
-                <h2 style={{ textAlign: 'center', marginBottom: '3rem', fontSize: '2.5rem' }}>
-                    어떤 공간을 <span style={{ color: 'var(--color-accent)' }}>디자인</span> 하시나요?
+                <h2 style={{ textAlign: 'center', marginBottom: '1rem', fontSize: '2.5rem', lineHeight: '1.4' }}>
+                    당신의 이번 프로젝트<br />
+                    <span style={{ color: 'var(--color-accent)' }}>어떤 공간</span>인가요?
                 </h2>
+                <p style={{
+                    textAlign: 'center',
+                    marginBottom: '3rem',
+                    fontSize: '1.2rem',
+                    color: 'rgba(255,255,255,0.7)',
+                    fontFamily: 'monospace',
+                    minHeight: '1.2em' // prevent layout shift
+                }}>
+                    {typedText}<span className="cursor">|</span>
+                </p>
 
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}>
                     <TypeCard

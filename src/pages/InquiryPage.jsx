@@ -5,10 +5,33 @@ import { useEstimation } from '../contexts/EstimationContext';
 
 export default function InquiryPage() {
     const navigate = useNavigate();
-    const { serviceType, details, style, materials, estimate, selectedPlan } = useEstimation();
-    const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: '' });
+    const { serviceType, details, style, materials, estimate, selectedPlan, attachedDrawing } = useEstimation();
+    const [formData, setFormData] = useState({ name: '', phone: '', email: '', message: '', files: [] });
     const [submitted, setSubmitted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Helper: Data URL to File
+    const dataUrlToFile = (url, filename) => {
+        const arr = url.split(',');
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) { u8arr[n] = bstr.charCodeAt(n); }
+        return new File([u8arr], filename, { type: mime });
+    };
+
+    // Auto-attach drawing if exists
+    useEffect(() => {
+        if (attachedDrawing) {
+            const drawingFile = dataUrlToFile(attachedDrawing, `my_drawing_${Date.now()}.jpg`);
+            setFormData(prev => {
+                // Avoid duplicating if already added (simple check by name prefix or length)
+                if (prev.files.some(f => f.name.startsWith('my_drawing_'))) return prev;
+                return { ...prev, files: [...prev.files, drawingFile] };
+            });
+        }
+    }, [attachedDrawing]);
 
     // Fallback
     useEffect(() => {
@@ -18,18 +41,129 @@ export default function InquiryPage() {
     }, [serviceType, submitted, navigate]);
 
     // Google Apps Script URL
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxV0VwGsLOGXynWf6R6cJGlt6EPMIj-_EWm7iLtRWOLoOsmc20btsk0XHtcfIorISUS/exec';
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbya72kY7HhuehAoEAAdXG8ZYXiW3W8u9W3C-HT9Gt__WFmD53Rw48QTzGXjga49mkR_/exec';
+
+    const handlePhoneChange = (e) => {
+        const raw = e.target.value.replace(/[^0-9]/g, '');
+        let formatted = raw;
+        if (raw.length > 3 && raw.length <= 7) {
+            formatted = `${raw.slice(0, 3)}-${raw.slice(3)}`;
+        } else if (raw.length > 7) {
+            formatted = `${raw.slice(0, 3)}-${raw.slice(3, 7)}-${raw.slice(7, 11)}`;
+        }
+        setFormData(prev => ({ ...prev, phone: formatted }));
+    };
+
+    const handleFileChange = (e) => {
+        const newFiles = Array.from(e.target.files);
+
+        setFormData(prev => {
+            // Preserve existing drawing files (auto-attached)
+            const existingDrawings = prev.files.filter(f => f.name.startsWith('my_drawing_'));
+
+            // Combine with new user selection
+            const combinedFiles = [...existingDrawings, ...newFiles];
+
+            // Validate Total Size
+            const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+            const totalSize = combinedFiles.reduce((acc, file) => acc + file.size, 0);
+
+            if (totalSize > MAX_SIZE) {
+                alert("총 파일 크기는 5MB를 초과할 수 없습니다.");
+                return prev; // Do not apply changes
+            }
+
+            return { ...prev, files: combinedFiles };
+        });
+    };
+
+    const convertToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+            // If it's not an image (e.g. PDF), just read it directly
+            if (!file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    let encoded = reader.result.toString().replace(/^data:(.*,)?/, '');
+                    if ((encoded.length % 4) > 0) { encoded += '='.repeat(4 - (encoded.length % 4)); }
+                    resolve({ name: file.name, type: file.type, base64: encoded });
+                };
+                reader.onerror = error => reject(error);
+                return;
+            }
+
+            // If it IS an image, compress it using Canvas
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const MAX_WIDTH = 1500;
+                    const MAX_HEIGHT = 1500;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Compress to JPEG at 0.7 quality
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+                    // Remove prefix
+                    let encoded = dataUrl.replace(/^data:(.*,)?/, '');
+                    if ((encoded.length % 4) > 0) { encoded += '='.repeat(4 - (encoded.length % 4)); }
+
+                    resolve({
+                        name: file.name.replace(/\.[^/.]+$/, "") + ".jpg", // Force extension to jpg
+                        type: 'image/jpeg',
+                        base64: encoded
+                    });
+                };
+            };
+            reader.onerror = error => reject(error);
+        });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
 
+        // Convert files to base64
+        let attachedFiles = [];
+        if (formData.files && formData.files.length > 0) {
+            try {
+                attachedFiles = await Promise.all(formData.files.map(convertToBase64));
+            } catch (err) {
+                console.error("File conversion error", err);
+                alert("파일 처리 중 오류가 발생했습니다.");
+                setIsSubmitting(false);
+                return;
+            }
+        }
+
         const payload = {
             ...formData,
+            files: attachedFiles, // Send processed files
             serviceType,
-            subType: details.subType,
-            area: details.area,
-            bathCount: details.bathCount || 0,
+            subType: details?.subType || '',
+            area: details?.area || '',
+            bathCount: details?.bathCount || 0,
             style,
             materials,
             estimateStandard: estimate?.standard || 0,
@@ -201,7 +335,7 @@ export default function InquiryPage() {
                             name="phone"
                             placeholder="010-0000-0000"
                             value={formData.phone}
-                            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                            onChange={handlePhoneChange}
                             style={{ width: '100%', padding: '1rem', background: 'transparent', border: '1px solid #444', color: '#fff', fontSize: '1rem', outline: 'none' }}
                             onFocus={(e) => e.target.style.borderColor = 'var(--color-accent)'}
                             onBlur={(e) => e.target.style.borderColor = '#444'}
@@ -221,6 +355,51 @@ export default function InquiryPage() {
                         />
                     </div>
 
+                    <div style={{ marginBottom: '2rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', color: '#888', fontSize: '0.9rem' }}>
+                            ATTACH FILES (Optional, Max 5MB total)
+                        </label>
+                        <div style={{
+                            border: '1px dashed #444',
+                            padding: '1.5rem',
+                            textAlign: 'center',
+                            cursor: 'pointer',
+                            borderRadius: '4px',
+                            transition: 'border-color 0.2s'
+                        }}
+                            onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--color-accent)'}
+                            onMouseOut={(e) => e.currentTarget.style.borderColor = '#444'}
+                            onClick={() => document.getElementById('fileInput').click()}
+                        >
+                            <input
+                                id="fileInput"
+                                type="file"
+                                multiple
+                                accept="image/*,.pdf"
+                                onChange={handleFileChange}
+                                style={{ display: 'none' }}
+                            />
+                            <p style={{ color: '#aaa', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                                (도면또는현장사진/원하는디자인사진)
+                            </p>
+                            <p style={{ color: '#666', fontSize: '0.8rem' }}>
+                                (JPG, PNG, PDF supported)
+                            </p>
+                            {formData.files && formData.files.length > 0 && (
+                                <div style={{ marginTop: '1rem', textAlign: 'left' }}>
+                                    <p style={{ color: 'var(--color-accent)', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Selected Files:</p>
+                                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                        {formData.files.map((f, idx) => (
+                                            <li key={idx} style={{ color: '#ccc', fontSize: '0.85rem', marginBottom: '2px' }}>
+                                                - {f.name} ({Math.round(f.size / 1024)}KB)
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
                     <button
                         type="submit"
                         disabled={isSubmitting}
@@ -229,14 +408,16 @@ export default function InquiryPage() {
                             padding: '1.2rem',
                             backgroundColor: isSubmitting ? '#555' : 'var(--color-accent)',
                             border: 'none',
-                            color: isSubmitting ? '#aaa' : '#000',
+                            color: isSubmitting ? '#ccc' : '#000',
                             fontWeight: 600,
                             fontSize: '1.1rem',
                             cursor: isSubmitting ? 'not-allowed' : 'pointer',
                             transition: 'opacity 0.2s'
                         }}
                     >
-                        {isSubmitting ? 'SENDING...' : 'SUBMIT REQUEST'}
+                        {isSubmitting
+                            ? (formData.files.length > 0 ? '파일 업로드 및 전송 중... (잠시만 기다려주세요)' : '전송 중...')
+                            : '상담 신청하기'}
                     </button>
                 </form>
             </div>

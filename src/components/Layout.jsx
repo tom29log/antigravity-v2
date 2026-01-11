@@ -49,19 +49,20 @@ export default function Layout({ children }) {
                 </div>
 
                 <img
-                    src="/assets/logo_header.png"
+                    src="/assets/logo_header_v2.png"
                     alt="On and Noch"
                     onClick={() => navigate('/')}
                     style={{
                         position: 'absolute',
                         left: '50%',
-                        top: '65%',
+                        top: '50%', // Centered vertically
                         transform: 'translate(-50%, -50%)',
-                        height: '150px',
+                        height: '51px', // 15% smaller than 60px
                         cursor: 'pointer',
-                        filter: 'brightness(0) invert(1)', // Make it white
+                        // filter: 'brightness(0) invert(1)', // Removed to show original color
                         transition: 'opacity 0.2s',
-                        zIndex: 101
+                        zIndex: 101,
+                        objectFit: 'contain'
                     }}
                     onMouseOver={(e) => e.currentTarget.style.opacity = '0.8'}
                     onMouseOut={(e) => e.currentTarget.style.opacity = '1'}

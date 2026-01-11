@@ -1,7 +1,7 @@
 {
   "name": "on-and-noch-estimate",
   "private": true,
-  "version": "1.2.1",
+  "version": "1.2.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -15,6 +15,7 @@
     "cors": "^2.8.5",
     "express": "^5.2.1",
     "firebase": "^12.7.0",
+    "framer-motion": "^12.23.26",
     "multer": "^2.0.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
