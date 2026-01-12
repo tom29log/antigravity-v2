@@ -118,7 +118,7 @@ export default function MaterialPage() {
                             {section.title}
                             {section.id === 'ceiling' && (
                                 <span style={{ fontSize: '0.9rem', color: '#aaa', marginLeft: '1rem', fontWeight: 400 }}>
-                                    * 현재 천정상태 유지는 무선택을 꼭 선택하셔야 금액추가가 안됩니다
+                                    * 현재 천정상태 유지는 <span style={{ fontSize: '1.05rem', color: 'var(--color-accent)', fontWeight: 600 }}>무선택을 꼭 선택</span>하셔야 금액추가가 안됩니다
                                 </span>
                             )}
                         </h3>

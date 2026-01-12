@@ -1,7 +1,7 @@
 {
   "name": "on-and-noch-estimate",
   "private": true,
-  "version": "1.2.12",
+  "version": "1.2.13",
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"npm run server\"",
