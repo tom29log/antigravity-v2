@@ -41,7 +41,7 @@ export default function InquiryPage() {
     }, [serviceType, submitted, navigate]);
 
     // Google Apps Script URL (직접 Google Sheet로 전송)
-    const API_URL = 'https://script.google.com/macros/s/AKfycbyZgWOdhSvKDyr2DNVcaJxHG_rV_RqTBl8pfD9MSwYxHgUJkncZL8RoMoUDTRANUR4T/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycby3UW78sigqAxkbmUIJJI6f6UA41Ao0H7KZLZ56vHA11M2RUMz7vHDRlvnBNjhaVs1n/exec';
 
     const handlePhoneChange = (e) => {
         const raw = e.target.value.replace(/[^0-9]/g, '');
