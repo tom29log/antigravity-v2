@@ -31,3 +31,4 @@ dist-ssr
 
 # Vite temporary files
 vite.config.js.timestamp-*
+.env*.local

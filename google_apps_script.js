@@ -2,8 +2,13 @@ function doPost(e) {
     // 1. Parse the incoming data
     var data = JSON.parse(e.postData.contents);
 
-    // 2. Open the Spreadsheet (Active Sheet)
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    // 2. Open the Spreadsheet by ID (웹앱에서는 getActiveSpreadsheet()가 작동하지 않음)
+    // ⚠️ 아래 SPREADSHEET_ID를 실제 구글 시트 ID로 교체하세요!
+    var SPREADSHEET_ID = '1FIrHfeiK630R2xF1YP8fGvQfJDuL3Gov7UASwKW1M24';
+    var SHEET_NAME = '시트1';  // 첫 번째 시트 (gid=0)
+
+    var spreadsheet = SpreadsheetApp.openById(SPREADSHEET_ID);
+    var sheet = spreadsheet.getSheetByName(SHEET_NAME) || spreadsheet.getSheets()[0];
 
     // 3. Add Header Row if it doesn't exist
     if (sheet.getLastRow() === 0) {

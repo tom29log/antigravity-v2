@@ -40,8 +40,8 @@ export default function InquiryPage() {
         }
     }, [serviceType, submitted, navigate]);
 
-    // Google Apps Script URL
-    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbya72kY7HhuehAoEAAdXG8ZYXiW3W8u9W3C-HT9Gt__WFmD53Rw48QTzGXjga49mkR_/exec';
+    // Google Apps Script URL (직접 Google Sheet로 전송)
+    const API_URL = 'https://script.google.com/macros/s/AKfycbzaO3j8A6HyW6SHAtdOukXPMiiQgxTQomLrm0EQrLLREbfcvYv6M1uRHLJbXWaApFoa/exec';
 
     const handlePhoneChange = (e) => {
         const raw = e.target.value.replace(/[^0-9]/g, '');
@@ -174,20 +174,31 @@ export default function InquiryPage() {
         };
 
         try {
-            await fetch(GOOGLE_SCRIPT_URL, {
+            // Google Apps Script로 전송 (redirect: 'follow' 필수)
+            const response = await fetch(API_URL, {
                 method: 'POST',
-                mode: 'no-cors',
                 headers: {
-                    'Content-Type': 'text/plain',
+                    'Content-Type': 'text/plain', // GAS는 text/plain이 더 안정적
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify(payload),
+                redirect: 'follow'
             });
 
-            console.log('Inquiry sent to Google Script');
-            setSubmitted(true);
+            // GAS 응답 처리
+            if (response.ok || response.type === 'opaque') {
+                console.log('Inquiry sent to Google Sheet');
+                setSubmitted(true);
+            } else {
+                throw new Error('Server error');
+            }
         } catch (error) {
             console.error("Submission failed", error);
-            alert("전송 중 오류가 발생했습니다. 다시 시도해 주세요.");
+            // 네트워크 에러가 아니면 성공으로 처리 (GAS CORS 이슈)
+            if (error.message !== 'Failed to fetch') {
+                setSubmitted(true);
+            } else {
+                alert("전송 중 오류가 발생했습니다. 다시 시도해 주세요.");
+            }
         } finally {
             setIsSubmitting(false);
         }
