@@ -116,6 +116,11 @@ export default function MaterialPage() {
                             paddingLeft: '1rem'
                         }}>
                             {section.title}
+                            {section.id === 'ceiling' && (
+                                <span style={{ fontSize: '0.9rem', color: '#aaa', marginLeft: '1rem', fontWeight: 400 }}>
+                                    * 현재 천정상태 유지는 무선택을 꼭 선택하셔야 금액추가가 안됩니다
+                                </span>
+                            )}
                         </h3>
                         <div style={{
                             display: 'grid',
